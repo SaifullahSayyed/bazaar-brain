@@ -1,5 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import SceneBackground from './3d/SceneBackground';
+import MarketNerveCenter from './3d/MarketNerveCenter';
+import SectorPopup from './SectorPopup';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
@@ -16,6 +19,13 @@ export default function Dashboard() {
   const setConnectionStatus = useMarketStore(state => state.setConnectionStatus);
   const incrementTick = useMarketStore(state => state.incrementTick);
   const systemStatus = useMarketStore(state => state.systemStatus);
+  const auditResult = useMarketStore(state => state.auditResult);
+
+  const [selectedSector, setSelectedSector] = useState(null);
+
+  const handleSectorClick = (sector) => {
+    setSelectedSector(sector);
+  };
 
   useEffect(() => {
     // Sync useLiveGrid data to global Zustand store every time it updates (700ms)
@@ -37,10 +47,29 @@ export default function Dashboard() {
       <div className="dashboard-container">
         <Header connectionStatus={connectionStatus} dataFreshness={dataFreshness} />
         
-        <div className="canvas-area">
-          <div>
-            3D MARKET NERVE CENTER — INITIALIZING<span className="anim-dots"></span>
-          </div>
+        <div style={{
+          gridArea: 'canvas',
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: '1rem',
+          border: '1px solid var(--color-border)',
+          margin: '1rem',
+          background: 'rgba(6, 13, 26, 0.4)',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <MarketNerveCenter
+            sectors={sectors}
+            auditResult={auditResult}
+            onSectorClick={handleSectorClick}
+          />
+          <AnimatePresence>
+            {selectedSector && (
+              <SectorPopup
+                sector={selectedSector}
+                onClose={() => setSelectedSector(null)}
+              />
+            )}
+          </AnimatePresence>
         </div>
         
         <Sidebar sectors={sectors} />
