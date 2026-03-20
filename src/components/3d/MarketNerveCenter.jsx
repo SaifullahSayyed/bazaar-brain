@@ -35,6 +35,7 @@ const MarketNerveCenter = React.memo(({ sectors, auditResult, onSectorClick }) =
   return (
     <div style={{ width: '100%', height: '100%', background: 'transparent' }}>
       <Canvas 
+        style={{ width: '100%', height: '100%' }}
         shadows 
         gl={{ antialias: true, alpha: true, pixelRatio: Math.min(window.devicePixelRatio, 2) }}
       >

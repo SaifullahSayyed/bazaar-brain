@@ -51,6 +51,8 @@ export default function Dashboard() {
           gridArea: 'canvas',
           position: 'relative',
           overflow: 'hidden',
+          height: '100%',
+          minHeight: '400px',
           borderRadius: '1rem',
           border: '1px solid var(--color-border)',
           margin: '1rem',
