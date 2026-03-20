@@ -1,0 +1,11 @@
+export const TICK_MS = 700;
+export const SECTOR_COUNT = 8;
+export const MOMENTUM_TRAP_PCT = 6;
+export const MOMENTUM_TRAP_VOL = 0.6;
+export const CIRCUIT_BREAKER_PCT = 13;
+export const TENSION_WARNING = 0.72;
+export const APP_NAME = 'Bazaar Brain';
+export const APP_TAGLINE = 'AI Market Commander — Zero Hallucination';
+export const WS_PORT = 8080;
+export const GEMINI_MODEL = 'gemini-1.5-flash';
+export const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
