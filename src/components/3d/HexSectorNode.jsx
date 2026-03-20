@@ -235,7 +235,7 @@ const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) =>
       <ParticleBurst active={isViolating} />
 
       {/* HTML Label */}
-      <Html position={[0, 2.2, 0]} center distanceFactor={8} zIndexRange={[100, 0]}>
+      <Html position={[0, 2.8, 0]} center distanceFactor={12} zIndexRange={[100, 0]}>
         <div style={{
           background: 'rgba(6,13,26,0.85)',
           border: '1px solid var(--color-border-bright)',
