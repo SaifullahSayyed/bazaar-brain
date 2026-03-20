@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useMarketStore } from '../context/MarketStore';
 import '../styles/Footer.css';
 
-export default function Footer() {
+export default function Footer({ solveTimeMs = 0 }) {
   const tickCount = useMarketStore(state => state.tickCount);
   const stateNorm = useMarketStore(state => state.stateNorm);
-  const solveTimeMs = useMarketStore(state => state.solveTimeMs);
   const lastSignalTime = useMarketStore(state => state.lastSignalTime);
   const aiStatus = useMarketStore(state => state.aiStatus);
   const syncAgeSeconds = useMarketStore(state => state.syncAgeSeconds);
@@ -17,7 +16,7 @@ export default function Footer() {
   return (
     <footer className="main-footer">
       <div className="footer-left">
-        Z3 PROOF: <span className="highlight">{solveTimeMs}ms</span> &nbsp;|&nbsp; 
+        Z3 PROOF: <span className="highlight">{solveTimeMs.toFixed(2)}ms</span> &nbsp;|&nbsp; 
         DEPTH: <span className="highlight">{tickCount}</span> &nbsp;|&nbsp; 
         NORM: <span className="highlight">{stateNorm.toFixed(3)}</span> &nbsp;|&nbsp; 
         TICK: <span className="highlight">{tickCount}</span>

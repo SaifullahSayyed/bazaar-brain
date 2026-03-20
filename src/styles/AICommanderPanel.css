@@ -1,0 +1,161 @@
+.aic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(6px);
+}
+
+.aic-animated-border {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  border: 3px solid var(--color-bear);
+  animation: borderPulse 0.7s ease-in-out infinite;
+}
+
+@keyframes borderPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.aic-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 720px;
+  width: 90vw;
+  background: rgba(6, 13, 26, 0.98);
+  border: 1px solid var(--color-bear);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: var(--glow-bear), inset 0 0 60px rgba(255, 34, 34, 0.03);
+}
+
+.aic-header {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--color-ai);
+  text-shadow: var(--glow-ai);
+  text-align: center;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 34, 34, 0.2);
+  margin-bottom: 1.25rem;
+}
+
+.aic-proof-box {
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.aic-proof-label {
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  color: var(--color-proof);
+  letter-spacing: 0.4em;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.aic-proof-rule {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-proof);
+}
+
+.aic-proof-math {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(0, 255, 136, 0.65);
+  margin-top: 0.25rem;
+}
+
+.aic-directive-box {
+  background: rgba(139, 0, 255, 0.05);
+  border: 1px solid rgba(139, 0, 255, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  min-height: 5rem;
+}
+
+.aic-directive-label {
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  color: var(--color-ai);
+  letter-spacing: 0.4em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.aic-eng-text {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--color-text-bright);
+  line-height: 1.6;
+}
+
+.aic-hindi-divider {
+  border-top: 1px solid rgba(255, 184, 0, 0.2);
+  margin: 0.6rem 0;
+}
+
+.aic-hindi-text {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--color-warning);
+  line-height: 1.8;
+}
+
+.aic-telemetry-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background: rgba(10, 22, 40, 0.5);
+  border-radius: 0.4rem;
+  padding: 0.6rem 1rem;
+}
+
+.aic-tel-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.aic-tel-label {
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  color: var(--color-text-muted);
+}
+
+.aic-tel-value {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-warning);
+}
+
+.aic-metadata-row {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.aic-ack-btn {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: var(--color-bull);
+  border: 1px solid var(--color-bull);
+  background: rgba(0, 255, 136, 0.07);
+  border-radius: 0.4rem;
+  padding: 0.65rem 1.5rem;
+  cursor: pointer;
+  outline: none;
+}

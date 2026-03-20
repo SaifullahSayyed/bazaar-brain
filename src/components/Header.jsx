@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Header.css';
 
-export default function Header({ connectionStatus, dataFreshness }) {
+export default function Header({ connectionStatus, dataFreshness, onBriefingClick }) {
   const [time, setTime] = useState(new Date().toLocaleTimeString('en-IN', { hour12: false }));
 
   useEffect(() => {
@@ -38,7 +38,11 @@ export default function Header({ connectionStatus, dataFreshness }) {
       </div>
 
       <div className="right-section">
-        <button className="ai-briefing-btn">
+        <button 
+          className="ai-briefing-btn"
+          onClick={onBriefingClick}
+          data-briefing-btn="true"
+        >
           🧠 AI BRIEFING
         </button>
 

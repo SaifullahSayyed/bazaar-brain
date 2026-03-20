@@ -1,0 +1,105 @@
+.brf-panel {
+  position: fixed;
+  top: 4.5rem;
+  left: 0;
+  right: 23rem; /* Leave room for sidebar */
+  z-index: 40;
+  background: rgba(4, 8, 20, 0.96);
+  border-bottom: 1px solid var(--color-border-bright);
+  backdrop-filter: blur(20px);
+  padding: 0.85rem 1.5rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.brf-loading-state {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brf-spin-ring {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.brf-loading-text {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--color-ai);
+}
+
+.brf-sections-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 0.75rem;
+}
+
+.brf-section {
+  flex: 1;
+  border-right: 1px solid var(--color-border);
+  padding: 0 1rem;
+}
+
+.brf-section:first-child { padding-left: 0; }
+.brf-section:last-child { border-right: none; padding-right: 0; }
+
+.brf-flex-hindi {
+  flex: 1.4;
+}
+
+.brf-sect-title {
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.35em;
+  margin-bottom: 0.3rem;
+}
+
+.sect-neutral { color: var(--color-neutral); }
+.sect-bear { color: var(--color-bear); }
+.sect-bull { color: var(--color-bull); }
+.sect-ai { color: var(--color-ai); }
+.sect-warn { color: var(--color-warning); }
+
+.brf-sect-text {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  min-height: 3.5rem; /* prevent layout shift while typing */
+}
+
+.text-primary { color: var(--color-text-primary); }
+.text-warn { color: var(--color-warning); text-shadow: 0 0 1px rgba(255, 184, 0, 0.4); }
+
+.brf-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 0.5rem;
+}
+
+.brf-meta {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+}
+
+.brf-close-btn {
+  background: none;
+  border: none;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  transition: color 0.2s;
+}
+
+.brf-close-btn:hover {
+  color: var(--color-bear);
+}

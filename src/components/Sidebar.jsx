@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useMarketStore } from '../context/MarketStore';
+import ReasoningTrace from './ReasoningTrace';
 import '../styles/Sidebar.css';
 
 const SectorCard = ({ sector, index, isEmergency, isOtherInEmergency }) => {
@@ -122,6 +123,8 @@ export default function Sidebar({ sectors }) {
           Initializing<span className="anim-dots"></span>
         </div>
       </div>
+
+      <ReasoningTrace />
     </aside>
   );
 }
