@@ -4,7 +4,10 @@ import { Html } from '@react-three/drei';
 import { useSpring, animated } from '@react-spring/three';
 import * as THREE from 'three';
 
-const formatNum = (num) => num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatNum = (val) => {
+  if (val === undefined || val === null) return '0'
+  return Number(val).toLocaleString('en-IN')
+}
 
 const ParticleBurst = ({ active }) => {
   const meshRef = useRef();
@@ -64,6 +67,20 @@ const ParticleBurst = ({ active }) => {
 };
 
 const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) => {
+  if (!sector) return null;
+
+  const {
+    tension: rawTension = 0,
+    voltage = 0,
+    waterLevel: rawWaterLevel = 0,
+    priceChangePct: rawPriceChangePct = 0,
+    currentPrice = 0,
+    signal: rawSignal = 'NEUTRAL',
+    name = '',
+    nifty = '',
+    id = ''
+  } = sector || {};
+
   const groupRef = useRef();
   const pulseRingRef = useRef();
   const scanBeamRef = useRef();
@@ -78,10 +95,10 @@ const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) =>
   const volGeo = useMemo(() => new THREE.TorusGeometry(1.5, 0.02, 8, 40), []);
   const rapidGeo = useMemo(() => new THREE.TorusGeometry(1.8, 0.04, 8, 40), []);
 
-  const tension = Math.min(Math.max((sector?.tension || 0), 0), 1);
-  const signal = sector?.signal || 'NEUTRAL';
-  const priceChange = sector?.priceChangePct || 0;
-  const waterLevel = sector?.waterLevel || 0;
+  const tension = Math.min(Math.max(rawTension, 0), 1);
+  const signal = rawSignal;
+  const priceChange = rawPriceChangePct;
+  const waterLevel = rawWaterLevel;
 
   // Colors
   const baseColor = new THREE.Color('#0066FF');
