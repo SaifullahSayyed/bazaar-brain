@@ -1,0 +1,120 @@
+.tt-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  max-width: 90vw;
+  background: rgba(10, 15, 25, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.1), inset 0 0 20px rgba(0, 255, 136, 0.05);
+  padding: 1.5rem;
+  z-index: 9999; /* ensure it's above other elements but maybe below AICommanderPanel if needed, wait, AI commander panel appears AFTER */
+  font-family: 'Fira Code', 'Courier New', monospace;
+  color: #00ff88;
+  overflow: hidden;
+}
+
+.tt-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00ff88, transparent);
+  animation: tt-scan 2s linear infinite;
+}
+
+@keyframes tt-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.tt-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tt-pulse {
+  width: 8px;
+  height: 8px;
+  background-color: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00ff88;
+  animation: tt-heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes tt-heartbeat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+}
+
+.tt-terminal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.tt-line {
+  text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+}
+
+.tt-cursor {
+  display: inline-block;
+  width: 8px;
+  background-color: #00ff88;
+  margin-top: 0.5rem;
+}
+
+.tt-container.tt-inline {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  backdrop-filter: none;
+}
+
+.tt-container.tt-inline::before {
+  display: none;
+}
+
+.tt-container.tt-post-generation {
+  left: 2rem;
+  right: auto;
+  transform: translateY(-50%);
+  width: 24rem;
+  max-width: 28vw;
+  z-index: 10001;
+  font-size: 0.8rem;
+  background: rgba(6, 10, 20, 0.95);
+  border: 1px solid rgba(0, 255, 136, 0.5);
+  box-shadow: 0 0 40px rgba(0, 255, 136, 0.15), inset 0 0 20px rgba(0, 255, 136, 0.1);
+}
+
+.tt-container.tt-post-generation .tt-terminal {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.tt-container.tt-post-generation .tt-line {
+  color: rgba(0, 255, 136, 0.85);
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+}

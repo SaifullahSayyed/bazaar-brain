@@ -1,14 +1,46 @@
 .dashboard-container {
-  position: relative;
-  z-index: 2;
-  height: 100vh;
   display: grid;
-  grid-template-rows: 4.5rem 1fr 3rem;
-  grid-template-columns: 1fr 23rem;
   grid-template-areas:
-    "header  header"
-    "canvas  sidebar"
-    "footer  footer";
+    "header header"
+    "banner banner"
+    "canvas sidebar"
+    "footer footer";
+  grid-template-rows: 3.5rem auto 1fr 4rem;
+  grid-template-columns: 1fr 14rem;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  z-index: 10;
+  position: relative;
+}
+
+.market-closed-banner {
+  grid-area: banner;
+  background: rgba(255, 184, 0, 0.12);
+  border-bottom: 1px solid rgba(255, 184, 0, 0.3);
+  color: var(--color-warning);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  text-align: center;
+  padding: 0.2rem;
+  letter-spacing: 0.05em;
+}
+
+@media (max-height: 520px) {
+  .dashboard-container {
+    grid-template-rows: 2rem 0 1fr 1rem;
+  }
+  .market-closed-banner {
+    display: none;
+  }
+  .canvas-area {
+    margin: 0.2rem;
+  }
+  .main-footer {
+    font-size: 0.5rem;
+    padding: 0 0.5rem;
+  }
+  .footer-center { display: none; }
 }
 
 .dashboard-container > * {

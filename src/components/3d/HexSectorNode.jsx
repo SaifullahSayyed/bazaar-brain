@@ -148,10 +148,17 @@ const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) =>
     config: { stiffness: 120, damping: isViolating ? 2 : 14 }
   });
 
+  const bar1Ref = useRef();
+  const bar2Ref = useRef();
+  const bar3Ref = useRef();
+  const ring1Ref = useRef();
+  const ring2Ref = useRef();
+
   useFrame((state) => {
+    const t = state.clock.getElapsedTime();
     if (pulseRingRef.current) {
       pulseRingRef.current.rotation.y += 0.005;
-      const pulse = 1 + 0.05 * Math.sin(Date.now() * 0.002 * (0.5 + tension));
+      const pulse = 1 + 0.05 * Math.sin(t * 2.0 * (0.5 + tension));
       pulseRingRef.current.scale.set(pulse, pulse, pulse);
     }
     if (scanBeamRef.current) {
@@ -163,6 +170,28 @@ const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) =>
     if (rapidOutRef.current) {
       rapidOutRef.current.rotation.y -= 0.04;
     }
+    
+    // Animate volumetric bars
+    const h1 = 0.2 + (tension * 0.8) + Math.sin(t * 3.0) * 0.1;
+    const h2 = 0.2 + (tension * 0.6) + Math.cos(t * 2.5) * 0.1;
+    const h3 = 0.2 + (tension * 1.2) + Math.sin(t * 4.0) * 0.15;
+    
+    if (bar1Ref.current) {
+      bar1Ref.current.scale.y = h1;
+      bar1Ref.current.position.y = (h1 / 2) + 0.075;
+    }
+    if (bar2Ref.current) {
+      bar2Ref.current.scale.y = h2;
+      bar2Ref.current.position.y = (h2 / 2) + 0.075;
+    }
+    if (bar3Ref.current) {
+      bar3Ref.current.scale.y = h3;
+      bar3Ref.current.position.y = (h3 / 2) + 0.075;
+    }
+
+    // Holographic rings
+    if (ring1Ref.current) ring1Ref.current.rotation.z = t * 1.5;
+    if (ring2Ref.current) ring2Ref.current.rotation.x = t * 1.2;
   });
 
   const arrow = priceChange >= 0 ? '↑' : '↓';
@@ -193,21 +222,36 @@ const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) =>
           color={platProps.color} 
           emissive={platProps.em} 
           emissiveIntensity={springProps.emissiveIntOffset.to(o => platProps.emInt + o)} 
-          metalness={0.8} 
-          roughness={0.2} 
+          metalness={0.9} 
+          roughness={0.1} 
         />
       </animated.mesh>
 
-      {/* Tower */}
-      <animated.mesh scale={springProps.towerScale} position={springProps.towerPos} geometry={towerGeo}>
-        <animated.meshStandardMaterial 
-          color={platProps.color} 
-          emissive={towProps.em} 
-          emissiveIntensity={towProps.emInt} 
-          metalness={0.8} 
-          roughness={0.2} 
-        />
-      </animated.mesh>
+      {/* Volumetric Bars Cluster */}
+      <group position={[0, 0, 0]}>
+        <mesh ref={bar1Ref} position={[0.3, 0, 0.3]}>
+          <boxGeometry args={[0.2, 1, 0.2]} />
+          <meshStandardMaterial color={ringCol} emissive={ringCol} emissiveIntensity={2} transparent opacity={0.8} />
+        </mesh>
+        <mesh ref={bar2Ref} position={[-0.3, 0, 0.3]}>
+          <boxGeometry args={[0.2, 1, 0.2]} />
+          <meshStandardMaterial color={ringCol} emissive={ringCol} emissiveIntensity={1.5} transparent opacity={0.7} />
+        </mesh>
+        <mesh ref={bar3Ref} position={[0, 0, -0.4]}>
+          <boxGeometry args={[0.2, 1, 0.2]} />
+          <meshStandardMaterial color={ringCol} emissive={ringCol} emissiveIntensity={2.5} transparent opacity={0.9} />
+        </mesh>
+      </group>
+
+      {/* Holographic Spinning Rings */}
+      <mesh ref={ring1Ref} position={[0, 0.5, 0]} rotation={[Math.PI/2, 0, 0]}>
+        <torusGeometry args={[0.8, 0.01, 16, 100]} />
+        <meshBasicMaterial color={ringCol} transparent opacity={0.3} />
+      </mesh>
+      <mesh ref={ring2Ref} position={[0, 0.5, 0]} rotation={[0, Math.PI/2, 0]}>
+        <torusGeometry args={[0.85, 0.01, 16, 100]} />
+        <meshBasicMaterial color={ringCol} transparent opacity={0.2} />
+      </mesh>
 
       {/* Pulse Ring */}
       <mesh ref={pulseRingRef} position={[0, 0.1, 0]} rotation={[Math.PI/2, 0, 0]} geometry={pulseGeo}>
@@ -234,39 +278,143 @@ const HexSectorNode = React.memo(({ sector, position, isViolating, onClick }) =>
       {/* Burst Particles */}
       <ParticleBurst active={isViolating} />
 
-      {/* HTML Label */}
-      <Html position={[0, 2.8, 0]} center distanceFactor={12} zIndexRange={[100, 0]}>
+      {/* HTML Label — premium floating card */}
+      <Html 
+        position={[0, 1.8, 0]} 
+        center 
+        distanceFactor={15} 
+        occlude={false} 
+        zIndexRange={[10, 20]}
+        style={{
+          pointerEvents: 'none',
+          whiteSpace: 'nowrap'
+        }}
+      >
         <div style={{
-          background: 'rgba(6,13,26,0.85)',
-          border: '1px solid var(--color-border-bright)',
-          borderLeft: `3px solid ${labelBorderCol}`,
-          borderRadius: '0.4rem',
-          padding: '0.3rem 0.6rem',
-          backdropFilter: 'blur(4px)',
+          background: `linear-gradient(145deg, rgba(6,13,26,0.96) 0%, rgba(${
+            isViolating ? '60,4,8' : signal === 'BULLISH' ? '4,30,18' : signal === 'BEARISH' ? '40,4,4' : '4,16,40'
+          },0.92) 100%)`,
+          border: `1px solid ${labelBorderCol}`,
+          borderRadius: '0.5rem',
+          padding: '0',
+          backdropFilter: 'blur(12px)',
           whiteSpace: 'nowrap',
           pointerEvents: 'none',
           display: 'flex',
           flexDirection: 'column',
-          minWidth: '120px'
+          minWidth: '110px',
+          overflow: 'hidden',
+          boxShadow: `0 0 20px rgba(${
+            isViolating ? '255,34,34' : signal === 'BULLISH' ? '0,255,136' : signal === 'BEARISH' ? '255,34,34' : '0,255,255'
+          }, 0.2), inset 0 0 20px rgba(${
+            isViolating ? '255,34,34' : signal === 'BULLISH' ? '0,255,136' : signal === 'BEARISH' ? '255,34,34' : '0,255,255'
+          }, 0.04)`,
         }}>
-          <div style={{ color: '#F1F5F9', fontFamily: "'Orbitron', sans-serif", fontSize: '0.75rem', fontWeight: 700 }}>
-            {sector?.id} · {sector?.nifty}
-          </div>
-          <div style={{ color: labelBorderCol, fontFamily: "'JetBrains Mono', monospace", fontSize: '0.85rem', fontWeight: 600, marginTop: '2px' }}>
-            ₹{sector ? formatNum(sector.currentPrice) : 0}
-          </div>
-          <div style={{ color: labelBorderCol, fontFamily: "'JetBrains Mono', monospace", fontSize: '0.75rem', marginTop: '1px' }}>
-            {arrow}{Math.abs(priceChange).toFixed(2)}%
-          </div>
-          <div style={{ width: '40px', height: '2px', background: 'rgba(255,255,255,0.1)', marginTop: '4px', overflow: 'hidden' }}>
-            <div style={{ 
-              width: `${tension * 100}%`, 
-              height: '100%', 
-              background: `linear-gradient(90deg, #0066FF, ${labelBorderCol})` 
+          {/* Top accent bar */}
+          <div style={{
+            height: '3px',
+            background: `linear-gradient(90deg, transparent, ${labelBorderCol}, transparent)`,
+            boxShadow: `0 0 8px ${labelBorderCol}`,
+          }} />
+
+          <div style={{ padding: '0.3rem 0.5rem 0.4rem' }}>
+            {/* Row 1: ID + NIFTY name */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.4rem', marginBottom: '0.15rem' }}>
+              <span style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: '0.55rem',
+                color: 'rgba(255,255,255,0.45)',
+                letterSpacing: '0.04em',
+              }}>
+                {sector?.id}
+              </span>
+              <span style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                color: '#F1F5F9',
+                letterSpacing: '0.04em',
+              }}>
+                {sector?.nifty}
+              </span>
+            </div>
+
+            {/* Divider */}
+            <div style={{
+              height: '1px',
+              background: `linear-gradient(90deg, ${labelBorderCol}55, transparent)`,
+              marginBottom: '0.3rem',
             }} />
+
+            {/* Row 2: Price */}
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '1.05rem',
+              fontWeight: 700,
+              color: labelBorderCol,
+              letterSpacing: '0.02em',
+              textShadow: `0 0 10px ${labelBorderCol}80`,
+              marginBottom: '0.15rem',
+            }}>
+              ₹{sector ? formatNum(sector.currentPrice) : '0'}
+            </div>
+
+            {/* Row 3: Change % with arrow */}
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.72rem',
+              fontWeight: 600,
+              color: labelBorderCol,
+              marginBottom: '0.35rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+            }}>
+              <span style={{ fontSize: '0.85rem' }}>{arrow}</span>
+              {Math.abs(priceChange).toFixed(2)}%
+            </div>
+
+            {/* Tension bar */}
+            <div style={{ marginBottom: '0.3rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.15rem' }}>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.48rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>TENSION</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: '0.48rem', color: labelBorderCol }}>{(tension * 100).toFixed(0)}%</span>
+              </div>
+              <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{
+                  width: `${tension * 100}%`,
+                  height: '100%',
+                  borderRadius: '2px',
+                  background: `linear-gradient(90deg, #0066FF, ${labelBorderCol})`,
+                  boxShadow: `0 0 6px ${labelBorderCol}`,
+                  transition: 'width 0.6s ease',
+                }} />
+              </div>
+            </div>
+
+            {/* Signal badge */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.2rem',
+              background: `rgba(${
+                isViolating ? '255,34,34' : signal === 'BULLISH' ? '0,255,136' : signal === 'BEARISH' ? '255,34,34' : '0,255,255'
+              }, 0.12)`,
+              border: `1px solid ${labelBorderCol}55`,
+              borderRadius: '0.25rem',
+              padding: '0.08rem 0.35rem',
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: '0.58rem',
+              color: labelBorderCol,
+              fontWeight: 'bold',
+              letterSpacing: '0.08em',
+            }}>
+              {isViolating ? '⚡ ALERT' : signal === 'BULLISH' ? '▲ BULLISH' : signal === 'BEARISH' ? '▼ BEARISH' : '◆ NEUTRAL'}
+            </div>
           </div>
         </div>
       </Html>
+
     </group>
   );
 });

@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useEffect, useState } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useSpring, animated } from '@react-spring/three';
+
 
 const generateGroundTexture = () => {
   const canvas = document.createElement('canvas');
@@ -12,16 +14,25 @@ const generateGroundTexture = () => {
   ctx.fillStyle = '#020408';
   ctx.fillRect(0, 0, 1024, 1024);
   
-  // Radial glow
+  // Strong radial glow — blue in center, cyan at midpoint, fading out
   const gradient = ctx.createRadialGradient(512, 512, 0, 512, 512, 512);
-  gradient.addColorStop(0, 'rgba(0, 102, 255, 0.15)');
-  gradient.addColorStop(1, 'rgba(0, 102, 255, 0)');
+  gradient.addColorStop(0,   'rgba(0, 200, 255, 0.35)');
+  gradient.addColorStop(0.3, 'rgba(0, 102, 255, 0.28)');
+  gradient.addColorStop(0.7, 'rgba(0, 60, 180, 0.12)');
+  gradient.addColorStop(1,   'rgba(0, 0, 60, 0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 1024, 1024);
   
-  // Hexagonal grid
-  ctx.strokeStyle = 'rgba(15, 32, 64, 0.6)'; // equivalent to #0F2040 @ 0.6 opacity
-  ctx.lineWidth = 2;
+  // Inner bright hotspot
+  const hotspot = ctx.createRadialGradient(512, 512, 0, 512, 512, 120);
+  hotspot.addColorStop(0, 'rgba(0, 255, 255, 0.18)');
+  hotspot.addColorStop(1, 'rgba(0, 255, 255, 0)');
+  ctx.fillStyle = hotspot;
+  ctx.fillRect(0, 0, 1024, 1024);
+  
+  // Hexagonal grid — brighter lines
+  ctx.strokeStyle = 'rgba(0, 100, 200, 0.55)';
+  ctx.lineWidth = 2.5;
   
   const drawHex = (x, y, radius) => {
     ctx.beginPath();
@@ -36,9 +47,21 @@ const generateGroundTexture = () => {
     ctx.stroke();
   };
 
-  // Concentric hexes
-  for(let r=50; r<600; r+=50) {
+  // Concentric hexes — more rings, brighter inner ones
+  for(let r = 30; r < 600; r += 38) {
+    ctx.strokeStyle = `rgba(0, ${Math.floor(80 + 120 * (1 - r/600))}, 220, ${(0.6 - r/1200).toFixed(2)})`;
     drawHex(512, 512, r);
+  }
+  
+  // Radial spoke lines
+  ctx.strokeStyle = 'rgba(0, 140, 255, 0.18)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(512, 512);
+    ctx.lineTo(512 + Math.cos(angle) * 512, 512 + Math.sin(angle) * 512);
+    ctx.stroke();
   }
   
   const tex = new THREE.CanvasTexture(canvas);
@@ -59,7 +82,7 @@ const CitySilhouette = React.memo(() => {
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2;
       // Radius between 9 and 11
-      const rad = 9 + (i % 3) * 0.66;
+      const rad = 24 + (i % 3) * 1.2;
       
       const x = Math.cos(angle) * rad;
       const z = Math.sin(angle) * rad;
@@ -79,7 +102,7 @@ const CitySilhouette = React.memo(() => {
   return (
     <instancedMesh ref={meshRef} args={[null, null, count]} castShadow receiveShadow>
       <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#0A1628" emissive="#0066FF" emissiveIntensity={0.2} metalness={0.9} roughness={0.1} />
+      <meshStandardMaterial color="#0A1628" emissive="#0066FF" emissiveIntensity={0.6} metalness={0.95} roughness={0.05} />
     </instancedMesh>
   );
 });
@@ -103,9 +126,34 @@ const HolographicSweep = React.memo(() => {
 
   return (
     <animated.mesh position-y={props.y} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[28, 28]} />
+      <planeGeometry args={[60, 60]} />
       <meshBasicMaterial color="#00FF88" transparent opacity={active ? 0.04 : 0} side={THREE.DoubleSide} depthWrite={false} />
     </animated.mesh>
+  );
+});
+
+// Animated pulse ring expanding from center
+const GroundPulseRings = React.memo(() => {
+  const rings = [useRef(), useRef(), useRef()];
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    rings.forEach((r, i) => {
+      if (!r.current) return;
+      const phase = (t * 0.4 + i * 0.33) % 1;
+      const s = 2 + phase * 40;
+      r.current.scale.set(s, 1, s);
+      r.current.material.opacity = (1 - phase) * 0.25;
+    });
+  });
+  return (
+    <group position={[0, 0.02, 0]}>
+      {rings.map((r, i) => (
+        <mesh key={i} ref={r} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.0, 1.06, 64]} />
+          <meshBasicMaterial color="#00FFFF" transparent opacity={0.2} depthWrite={false} />
+        </mesh>
+      ))}
+    </group>
   );
 });
 
@@ -115,12 +163,13 @@ const GroundPlane = React.memo(() => {
   return (
     <group>
       <mesh position={[0, -0.1, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[14, 64]} />
-        <meshStandardMaterial map={groundTex} transparent opacity={0.85} color="#ffffff" />
+        <circleGeometry args={[32, 64]} />
+        <meshStandardMaterial map={groundTex} transparent opacity={0.92} color="#ffffff" />
       </mesh>
       
       <CitySilhouette />
       <HolographicSweep />
+      <GroundPulseRings />
     </group>
   );
 });

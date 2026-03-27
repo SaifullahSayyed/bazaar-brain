@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useMarketStore } from '../context/MarketStore';
 import ReasoningTrace from './ReasoningTrace';
+import OpportunityRadar from './OpportunityRadar';
+import MyAlerts from './MyAlerts';
+import SentinelPanel from './SentinelPanel';
 import '../styles/Sidebar.css';
 
 const SectorCard = ({ sector, index, isEmergency, isOtherInEmergency }) => {
@@ -70,10 +73,15 @@ const SectorCard = ({ sector, index, isEmergency, isOtherInEmergency }) => {
   );
 };
 
-export default function Sidebar({ sectors }) {
+import ContagionHeatmap from './ContagionHeatmap';
+import BacktestBadge from './BacktestBadge';
+import PortfolioOverlay from './PortfolioOverlay';
+
+export default function Sidebar({ sectors, sentinelAlerts = [] }) {
   const marketMeta = useMarketStore(state => state.marketMeta);
   const systemStatus = useMarketStore(state => state.systemStatus);
   const auditResult = useMarketStore(state => state.auditResult);
+  const [sidebarTab, setSidebarTab] = useState('SECTORS');
   
   // Assuming auditResult has violatingSectorId if SIGNAL_DETECTED
   const isEmergencyActive = systemStatus === 'SIGNAL_DETECTED';
@@ -102,29 +110,96 @@ export default function Sidebar({ sectors }) {
         <div className="verify-nudge">Verify on NSE India app →</div>
       </div>
       
+      <PortfolioOverlay />
+
       <div className="sidebar-middle">
-        <div className="section-label px-label">SECTOR STATUS</div>
-        <div className="sectors-list">
-          {sectors.map((sector, idx) => (
-            <SectorCard 
-              key={sector.id} 
-              sector={sector} 
-              index={idx}
-              isEmergency={isEmergencyActive && sector.id === violatingSectorId}
-              isOtherInEmergency={isEmergencyActive && sector.id !== violatingSectorId}
-            />
-          ))}
+        {/* Tab Bar */}
+        <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: '0.3rem', position: 'relative', zIndex: 10 }}>
+          {['SECTORS', 'HEATMAP', 'MY ALERTS'].map(tab => {
+            const isActive = (sidebarTab || 'SECTORS') === tab;
+            return (
+              <button
+                key={tab}
+                onClick={(e) => { e.stopPropagation(); setSidebarTab(tab); }}
+                style={{
+                  flex: 1, padding: '0.5rem', border: 'none',
+                  background: isActive ? 'rgba(0,255,136,0.12)' : 'rgba(0,0,0,0.3)',
+                  color: isActive ? '#00ff88' : '#475569',
+                  borderBottom: isActive ? '2px solid #00ff88' : '2px solid transparent',
+                  cursor: 'pointer', fontSize: '0.58rem', letterSpacing: '0.12em',
+                  fontFamily: 'var(--font-mono)', transition: 'all 0.2s',
+                  pointerEvents: 'all', position: 'relative', zIndex: 11,
+                }}
+              >
+                {tab}
+              </button>
+            );
+          })}
         </div>
+        {/* Conditional rendering based on active tab */}
+        {sidebarTab === 'MY ALERTS' ? (
+          <MyAlerts />
+        ) : sidebarTab === 'HEATMAP' ? (
+          <ContagionHeatmap />
+        ) : (
+          <div className="sectors-list">
+          {sectors.map((sector, idx) => {
+            const isViolating = isEmergencyActive && sector.id === violatingSectorId;
+            return (
+              <div 
+                key={sector.id} 
+                className={`sector-status-card ${isViolating ? 'violating' : ''}`}
+                onClick={() => window.dispatchEvent(new CustomEvent('bazaar-trigger-z3-audit', { detail: { sectorId: sector.id } }))}
+                style={{ cursor: 'pointer' }}
+              >
+                <SectorCard 
+                  sector={sector} 
+                  index={idx}
+                  isEmergency={isViolating}
+                  isOtherInEmergency={isEmergencyActive && sector.id !== violatingSectorId}
+                />
+              </div>
+            );
+          })}
+        </div>
+        )}
       </div>
       
       <div className="sidebar-bottom">
-        <div className="section-label radar-label">OPPORTUNITY RADAR</div>
-        <div className="radar-placeholder">
-          Initializing<span className="anim-dots"></span>
-        </div>
+        <SentinelPanel alerts={sentinelAlerts} />
+        <OpportunityRadar />
       </div>
 
       <ReasoningTrace />
+
+      {/* HISTORICAL VALIDATION PANEL */}
+      <BacktestBadge />
+
+      {/* DATA ARCHITECTURE TRANSPARENCY PANEL */}
+      <div style={{
+        borderTop: '1px solid rgba(139,0,255,0.3)',
+        padding: '0.4rem 0.5rem',
+        fontFamily: 'var(--font-mono)',
+        fontSize: '0.5rem',
+      }}>
+        <div style={{ color: 'var(--color-ai)', letterSpacing: '0.15em', marginBottom: '0.3rem' }}>DATA ARCHITECTURE</div>
+        {[
+          { label: 'L1', val: 'Node.js Sim Server → ws://3001', status: 'ACTIVE', color: 'var(--color-bull)' },
+          { label: 'L2', val: 'WebSocket Adapter (swap for NSE feed)', status: 'PLUGGABLE', color: 'var(--color-warning)' },
+          { label: 'L3', val: 'Zustand MarketStore (state bus)', status: 'LIVE', color: 'var(--color-bull)' },
+          { label: 'L4', val: 'Z3 RiskAuditor (formal logic engine)', status: 'RUNNING', color: 'var(--color-proof)' },
+          { label: 'L5', val: 'Gemini 2.5 Flash (AI Commander)', status: 'ONLINE', color: 'var(--color-bull)' },
+        ].map(row => (
+          <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginBottom: '0.12rem' }}>
+            <span style={{ color: 'var(--color-text-muted)', minWidth: '1.2rem' }}>{row.label}</span>
+            <span style={{ color: 'var(--color-text-primary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row.val}</span>
+            <span style={{ color: row.color, minWidth: '3.8rem', textAlign: 'right' }}>{row.status}</span>
+          </div>
+        ))}
+        <div style={{ color: 'rgba(139,0,255,0.5)', marginTop: '0.3rem', fontSize: '0.45rem' }}>
+          Swap L2 for Angel One / NSE WebSocket to deploy to production.
+        </div>
+      </div>
     </aside>
   );
 }

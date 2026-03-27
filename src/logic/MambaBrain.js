@@ -65,6 +65,8 @@ class MambaBrain {
         temperature: 50000 + (this.h_t[i] * 1000),
         humidity: Math.abs(Math.sin(this.tickCount * 0.1 + i)),
         pressure: 1000 + (this.h_t[i] * 20),
+        price: 25000 + (i * 1500) + (this.h_t[i] * 500),
+        currentPrice: 25000 + (i * 1500) + (this.h_t[i] * 500),
         priceChangePct: this.h_t[i] * 2,
         signal: this.h_t[i] > 0.5 ? 'BULLISH' : this.h_t[i] < -0.5 ? 'BEARISH' : 'NEUTRAL'
       };
@@ -95,6 +97,26 @@ class MambaBrain {
     }
 
     return output;
+  }
+
+  getMarketMeta() {
+    const niftyBase = 24500;
+    const sensexBase = 80500;
+    const sin = Math.sin(this.tickCount * 0.05);
+    
+    return {
+      nifty50: {
+        price: niftyBase + (sin * 120),
+        change: sin * 80,
+        changePct: sin * 0.32
+      },
+      sensex: {
+        price: sensexBase + (sin * 400),
+        change: sin * 250,
+        changePct: sin * 0.31
+      },
+      syncAgeSeconds: 0
+    };
   }
 }
 

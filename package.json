@@ -1,10 +1,12 @@
 {
   "name": "bazaar-brain",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.4.0-ai-commander",
+  "description": "High-frequency market monitoring with Z3 Risk Proof Engine and Gemini AI Commander.",
+  "author": "Antigravity AI",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -18,9 +20,12 @@
     "d3": "^7.9.0",
     "framer-motion": "^12.38.0",
     "gsap": "^3.14.2",
+    "lucide-react": "^0.453.0",
+    "puppeteer": "^24.40.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^7.13.2",
     "socket.io-client": "^4.8.3",
     "three": "^0.183.2",
     "zustand": "^5.0.12"

@@ -1,17 +1,28 @@
 .aic-overlay {
   position: fixed;
-  inset: 0;
-  z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
   background: rgba(0, 0, 0, 0.88);
   backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .aic-animated-border {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
   border: 3px solid var(--color-bear);
   animation: borderPulse 0.7s ease-in-out infinite;
+  z-index: 9998;
 }
 
 @keyframes borderPulse {
@@ -20,37 +31,56 @@
 }
 
 .aic-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 720px;
-  width: 90vw;
+  position: relative;
+  max-width: min(680px, 88vw);
+  max-height: 90vh;
+  width: 88vw;
+  overflow-y: auto;
   background: rgba(6, 13, 26, 0.98);
   border: 1px solid var(--color-bear);
   border-radius: 1rem;
-  padding: 2rem;
+  padding: 1.25rem 1.5rem;
   box-shadow: var(--glow-bear), inset 0 0 60px rgba(255, 34, 34, 0.03);
 }
 
 .aic-header {
   font-family: var(--font-display);
   font-weight: 900;
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   color: var(--color-ai);
   text-shadow: var(--glow-ai);
   text-align: center;
-  padding-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid rgba(255, 34, 34, 0.2);
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.aic-close-x {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.aic-close-x:hover {
+  color: var(--color-text-bright);
+  transform: scale(1.1);
 }
 
 .aic-proof-box {
   background: rgba(0, 255, 136, 0.05);
   border: 1px solid rgba(0, 255, 136, 0.25);
   border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.6rem;
 }
 
 .aic-proof-label {
@@ -79,9 +109,9 @@
   background: rgba(139, 0, 255, 0.05);
   border: 1px solid rgba(139, 0, 255, 0.25);
   border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  margin-bottom: 1rem;
-  min-height: 5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.6rem;
+  min-height: 3rem;
 }
 
 .aic-directive-label {
@@ -105,9 +135,59 @@
   margin: 0.6rem 0;
 }
 
+.aic-sync-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.aic-sync-scanner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--color-bull);
+  box-shadow: 0 0 15px var(--color-bull);
+  animation: scanLoop 1.2s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+@keyframes scanLoop {
+  0% { top: 0%; opacity: 0; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.aic-sync-text {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--color-text-bright);
+  letter-spacing: 0.25em;
+  margin-bottom: 0.5rem;
+  animation: txtFlicker 0.1s infinite alternate;
+}
+
+@keyframes txtFlicker {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
+}
+
+.aic-sync-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+}
+
 .aic-hindi-text {
   font-family: var(--font-mono);
-  font-size: 0.82rem;
+  font-size: 0.95rem; /* Slightly larger for clarity */
+  font-weight: 500;
   color: var(--color-warning);
   line-height: 1.8;
 }
@@ -141,10 +221,10 @@
 
 .aic-metadata-row {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.55rem;
   color: var(--color-text-muted);
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
 }
 
 .aic-ack-btn {
@@ -158,4 +238,37 @@
   padding: 0.65rem 1.5rem;
   cursor: pointer;
   outline: none;
+}
+
+.aic-edu-banner {
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid var(--color-ai);
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  font-size: 0.65rem;
+  color: #d8b4fe;
+  line-height: 1.4;
+  border-left: 3px solid var(--color-ai);
+}
+
+.edu-info-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  background: var(--color-ai);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.5rem;
+  margin-left: 0.4rem;
+  cursor: help;
+  vertical-align: middle;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.edu-info-tag:hover {
+  opacity: 1;
 }

@@ -103,3 +103,56 @@
 .brf-close-btn:hover {
   color: var(--color-bear);
 }
+
+@media (max-height: 520px) {
+  .brf-panel {
+    top: 3.5rem;
+    padding: 0.5rem 1rem;
+    right: 17rem; /* Fits smaller sidebar */
+  }
+  .brf-sect-title {
+    font-size: 0.45rem;
+  }
+  .brf-sect-text {
+    font-size: 0.65rem;
+    min-height: 3rem;
+  }
+  .brf-sections-row {
+    margin-bottom: 0.4rem;
+  }
+}
+
+.brf-edu-banner {
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid var(--color-ai);
+  border-left: 3px solid var(--color-ai);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: #d8b4fe;
+  line-height: 1.4;
+}
+
+.brf-sect-title .edu-info-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 11px;
+  height: 11px;
+  background: var(--color-ai);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.48rem;
+  margin-left: 0.35rem;
+  cursor: help;
+  vertical-align: middle;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+  font-weight: bold;
+}
+
+.brf-sect-title .edu-info-tag:hover {
+  opacity: 1;
+}

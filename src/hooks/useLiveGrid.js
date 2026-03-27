@@ -22,7 +22,7 @@ export function useLiveGrid() {
       if (!isSubscribed) return;
       setConnectionStatus('RECONNECTING');
 
-      const socketUrl = `http://localhost:${WS_PORT}`;
+      const socketUrl = `http://${window.location.hostname}:${WS_PORT}`;
       const socket = io(socketUrl, {
         reconnection: false, // We'll handle manual reconnect with backoff
         timeout: 2000
@@ -88,12 +88,14 @@ export function useLiveGrid() {
       // Immediately run once to prevent UI blank
       const mambaOutput = MambaBrain.tick();
       setSectors(mambaOutput);
+      setMarketMeta(MambaBrain.getMarketMeta());
       setDataFreshness('OFFLINE_MAMBA');
       
       autonomousIntervalRef.current = setInterval(() => {
         if (isSubscribed) {
           const mambaOutput = MambaBrain.tick();
-          setSectors([...mambaOutput]); // copy to trigger render
+          setSectors([...mambaOutput]); 
+          setMarketMeta(MambaBrain.getMarketMeta());
           setDataFreshness('OFFLINE_MAMBA');
         }
       }, TICK_MS);

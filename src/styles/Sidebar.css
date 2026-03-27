@@ -1,24 +1,26 @@
 .main-sidebar {
   grid-area: sidebar;
-  background: rgba(4, 8, 16, 0.75);
-  backdrop-filter: blur(16px);
-  border-left: 1px solid var(--color-border-bright);
+  background: rgba(2, 4, 8, 0.4);
+  backdrop-filter: blur(12px);
+  border-left: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 14rem;
+  height: 100%;
 }
 
 .sidebar-top {
   background: rgba(10, 22, 40, 0.8);
   border-bottom: 1px solid var(--color-border);
-  padding: 0.75rem 1rem;
+  padding: 0.3rem 0.6rem;
 }
 
 .sidebar-bottom {
   background: rgba(6, 13, 26, 0.8);
   border-top: 1px solid var(--color-border);
-  padding: 0.75rem 1rem;
-  min-height: 5rem;
+  padding: 0.3rem 0.5rem;
 }
 
 .sidebar-middle {
@@ -33,6 +35,59 @@
   flex-direction: column;
   gap: 0.4rem;
   padding-bottom: 1rem;
+}
+
+.sidebar-head h2 {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  color: var(--color-text-bright);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sector-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sector-status-card {
+  background: rgba(15, 32, 64, 0.4);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  transition: all 0.3s ease;
+}
+
+.sector-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.1rem;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.1rem;
+}
+
+.current-price {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--color-text-bright);
+}
+
+.sector-id {
+  font-weight: 900;
+  color: var(--color-neon-blue);
+  font-size: 0.6rem;
+}
+
+.sector-name {
+  font-size: 0.65rem;
+  color: var(--color-text-bright);
 }
 
 .section-label {

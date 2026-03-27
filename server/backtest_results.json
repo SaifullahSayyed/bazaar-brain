@@ -1,0 +1,53 @@
+{
+  "detected": 180,
+  "validated": 68,
+  "falsePositives": 112,
+  "accuracy": "37.8",
+  "dateRange": "Mar 2024 – Mar 2026",
+  "sectorBreakdown": {
+    "NIFTY IT": {
+      "detected": 24,
+      "validated": 8,
+      "accuracy": "33.3"
+    },
+    "NIFTY BANK": {
+      "detected": 11,
+      "validated": 3,
+      "accuracy": "27.3"
+    },
+    "NIFTY ENERGY": {
+      "detected": 16,
+      "validated": 8,
+      "accuracy": "50.0"
+    },
+    "NIFTY FMCG": {
+      "detected": 15,
+      "validated": 6,
+      "accuracy": "40.0"
+    },
+    "NIFTY PHARMA": {
+      "detected": 20,
+      "validated": 8,
+      "accuracy": "40.0"
+    },
+    "NIFTY AUTO": {
+      "detected": 27,
+      "validated": 10,
+      "accuracy": "37.0"
+    },
+    "NIFTY METAL": {
+      "detected": 27,
+      "validated": 9,
+      "accuracy": "33.3"
+    },
+    "NIFTY REALTY": {
+      "detected": 40,
+      "validated": 16,
+      "accuracy": "40.0"
+    }
+  },
+  "dataSource": "Yahoo Finance 2Y Historical (NSE Index data, daily OHLCV)",
+  "methodology": "Momentum Trap: 5-day surge >2.5% with <0.75x average range activity → confirmed by ≥1.0% drawdown within 7 trading days",
+  "confirmationWindow": "7 trading days",
+  "timestamp": "2026-03-27T15:07:02.808Z"
+}

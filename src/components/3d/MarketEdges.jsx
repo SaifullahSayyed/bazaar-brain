@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Line } from '@react-three/drei';
 import * as THREE from 'three';
+import { useMarketStore } from '../../context/MarketStore';
 
 const EDGES = [
   ['S1','S2'], ['S1','S3'], ['S1','S4'],
@@ -11,8 +12,10 @@ const EDGES = [
   ['S1','S8']
 ];
 
-const EdgeConnection = React.memo(({ edge, sectors, positions, isCritical }) => {
+const EdgeConnection = React.memo(({ edge, sectors, positions, isCritical, idx }) => {
   const [idA, idB] = edge;
+  const userPortfolio = useMarketStore(state => state.userPortfolio);
+  const isOwned = userPortfolio[idA] || userPortfolio[idB];
   
   const posA = positions.find(p => p.id === idA)?.pos || [0,0,0];
   const posB = positions.find(p => p.id === idB)?.pos || [0,0,0];
@@ -45,11 +48,15 @@ const EdgeConnection = React.memo(({ edge, sectors, positions, isCritical }) => 
   const linePoints = useMemo(() => curve.getPoints(20), [curve]);
 
   // Color logic
-  let edgeColor = '#00FFFF';
+  let edgeColor = '#00FFFF'; // default cyan
   let packetEmissive = 2.0;
+  
   if (isCritical) {
     edgeColor = '#FF2222';
     packetEmissive = 3.0;
+  } else if (isOwned) {
+    edgeColor = '#FFD700'; // GOLD
+    packetEmissive = 3.5;
   } else if (sA === 'BULLISH' && sB === 'BULLISH') {
     edgeColor = '#00FF88';
     packetEmissive = 2.5;
@@ -63,42 +70,51 @@ const EdgeConnection = React.memo(({ edge, sectors, positions, isCritical }) => 
 
   // Packet animation
   const packetRef = useRef();
+  const trailRef = useRef();
   const speedRef = useRef(0);
   
-  useFrame(() => {
+  useFrame((state) => {
     if (!packetRef.current) return;
+    const t = state.clock.getElapsedTime();
     
-    // speed: 0.003 + avgTension * 0.005
-    let currentSpeed = 0.003 + avgTension * 0.005;
-    if (isCritical) currentSpeed *= 3;
+    let currentSpeed = 0.003 + avgTension * 0.008;
+    if (isCritical) currentSpeed *= 2.5;
     
     speedRef.current += currentSpeed;
-    if (speedRef.current > 1) speedRef.current -= 1; // loop back
+    if (speedRef.current > 1) speedRef.current -= 1;
     
     const pt = curve.getPointAt(speedRef.current);
     packetRef.current.position.copy(pt);
+    
+    // Pulse line opacity
+    const pulse = 0.3 + 0.7 * (Math.sin(t * 4.0 + idx * 0.5) * 0.5 + 0.5);
+    lineRef.current.material.opacity = lineOpacity * pulse;
   });
+
+  const lineRef = useRef();
 
   return (
     <group>
       <Line 
+        ref={lineRef}
         points={linePoints}
         color={edgeColor}
-        lineWidth={lineWidth}
+        lineWidth={lineWidth * 1.5}
         transparent
         opacity={lineOpacity}
         dashed={isCritical}
-        dashSize={0.5}
+        dashSize={0.4}
         dashScale={2}
       />
       
       <mesh ref={packetRef}>
-        <sphereGeometry args={[0.07]} />
+        <sphereGeometry args={[isCritical ? 0.12 : 0.08]} />
         <meshStandardMaterial 
           color={edgeColor} 
           emissive={edgeColor} 
-          emissiveIntensity={packetEmissive} 
+          emissiveIntensity={packetEmissive * 2} 
         />
+        <pointLight color={edgeColor} intensity={2} distance={2} />
       </mesh>
     </group>
   );
@@ -114,6 +130,7 @@ export default React.memo(function MarketEdges({ sectors, positions, auditResult
         return (
           <EdgeConnection 
             key={`${edge[0]}-${edge[1]}`} 
+            idx={idx}
             edge={edge} 
             sectors={sectors} 
             positions={positions} 

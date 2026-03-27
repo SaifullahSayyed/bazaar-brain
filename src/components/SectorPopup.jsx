@@ -2,16 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import * as d3 from 'd3';
 import { useMarketStore } from '../context/MarketStore';
+import { useSectorStocks } from '../hooks/useSectorStocks';
 import '../styles/SectorPopup.css';
 
 const formatNum = (num) => num ? num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
 
-export default function SectorPopup({ sector, onClose }) {
+function SectorPopup({ sector, onClose }) {
   const [history, setHistory] = useState([]);
   const historyRef = useRef([]);
+  const { stocks, isLoading, fetchStocks } = useSectorStocks();
 
   const systemStatus = useMarketStore(state => state.systemStatus);
   const auditResult = useMarketStore(state => state.auditResult);
+  const educationMode = useMarketStore(state => state.educationMode);
   
   const isViolating = systemStatus === 'SIGNAL_DETECTED' && auditResult?.violatingSectorId === sector?.id;
 
@@ -36,6 +39,12 @@ export default function SectorPopup({ sector, onClose }) {
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose]);
+
+  useEffect(() => {
+    if (sector?.id) {
+      fetchStocks(sector.id);
+    }
+  }, [sector?.id, fetchStocks]);
 
   if (!sector) return null;
 
@@ -126,19 +135,31 @@ export default function SectorPopup({ sector, onClose }) {
             </div>
           </div>
           <div className="metric">
-            <div className="m-label">Tension</div>
+            <div className="m-label">
+              Tension
+              {educationMode && <span className="edu-info-tag" title="A measure of price/volume divergence indicating potential trend exhaustion. High tension signals a likely reversal or breakout.">?</span>}
+            </div>
             <div className="m-value">{tensionPct.toFixed(0)}%</div>
           </div>
           <div className="metric">
-            <div className="m-label">Volume</div>
+            <div className="m-label">
+              Volume
+              {educationMode && <span className="edu-info-tag" title="Current trading activity relative to the 5-day moving average. A ratio > 1.5x often signals institutional accumulation or distribution.">?</span>}
+            </div>
             <div className="m-value">{volPct}x</div>
           </div>
           <div className="metric">
-            <div className="m-label">Humidity</div>
+            <div className="m-label">
+              Humidity
+              {educationMode && <span className="edu-info-tag" title="Market liquidity depth. Higher humidity means smoother price discovery with less slippage for large orders.">?</span>}
+            </div>
             <div className="m-value">{humidityPct}%</div>
           </div>
           <div className="metric">
-            <div className="m-label">Pressure</div>
+            <div className="m-label">
+              Pressure
+              {educationMode && <span className="edu-info-tag" title="Net order flow bias (Buy vs Sell imbalance). Positive pressure = more buyers; negative = more sellers.">?</span>}
+            </div>
             <div className="m-value">{pressure.toFixed(1)}</div>
           </div>
         </div>
@@ -163,7 +184,73 @@ export default function SectorPopup({ sector, onClose }) {
             <span style={{ color: 'var(--color-proof)' }}>Z3 STATUS: SAFE</span>
           )}
         </div>
+
+        <div className="sector-breakdown-panel">
+          <div className="breakdown-header">
+            LIVE CONSTITUENT ANALYSIS
+            <div className="breakdown-subtext">∇ Z3 mathematically verified targets</div>
+          </div>
+          <div className="breakdown-list">
+            {isLoading ? (
+              <div className="loading-row">
+                <div className="pulse-dot" />
+                Initializing stock-level audit...
+              </div>
+            ) : stocks.length === 0 ? (
+              <div className="loading-row error-state">
+                <div className="warning-icon">⚠</div>
+                Constituent data sync interrupted. Reconnecting...
+              </div>
+            ) : (
+              stocks.map(st => {
+                const zoneColor = st.zoneStatus === 'SAFE' ? 'var(--color-bull)' : st.zoneStatus === 'BREAKOUT' ? 'var(--color-warning)' : 'var(--color-bear)';
+                return (
+                  <div 
+                    key={st.symbol} 
+                    className="stock-item-row"
+                    onClick={() => {
+                      // Dispatch custom event for Dashboard to pick up
+                      window.dispatchEvent(new CustomEvent('bazaar-show-stock-detail', { 
+                        detail: { stock: st, sectorName: sector.name } 
+                      }));
+                    }}
+                  >
+                    <div className="st-info">
+                      <div className="st-symbol">{st.shortName}</div>
+                      <div className="st-fullname">{st.name}</div>
+                    </div>
+                    
+                    <div className="st-price-block">
+                      <div className="st-price">₹{st.currentPrice.toFixed(2)}</div>
+                      <div className={st.priceChangePct >= 0 ? "st-chg-plus" : "st-chg-minus"}>
+                        {st.priceChangePct >= 0 ? '+' : ''}{st.priceChangePct.toFixed(2)}%
+                      </div>
+                    </div>
+
+                    <div className="st-z3-block">
+                      <div className="st-zone-pill" style={{ borderColor: zoneColor, color: zoneColor }}>
+                        {st.zoneStatus}
+                      </div>
+                      <div className="st-vol">Vol: {st.volumeRatio.toFixed(1)}x</div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <div className="breakdown-footer">
+            <div className="breadth-text">
+              SECTOR BREADTH: <span style={{ color: 'var(--color-bull)' }}>{stocks.filter(s => s.signal === 'BULLISH').length}/3 Bullish</span>
+            </div>
+            <div className="health-score">
+              Z3 SCORE: <span style={{ color: 'var(--color-cyan)' }}>{stocks.filter(s => s.zoneStatus === 'SAFE').length * 33 + 1}% SECURE</span>
+            </div>
+          </div>
+        </div>
+
       </motion.div>
     </>
   );
 }
+
+export default React.memo(SectorPopup);

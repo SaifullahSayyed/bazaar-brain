@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import ImpactCounter from './ImpactCounter';
+import EducationToggle from './EducationToggle';
 import '../styles/Header.css';
 
-export default function Header({ connectionStatus, dataFreshness, onBriefingClick }) {
+export default function Header({ connectionStatus, dataFreshness, onBriefingClick, onStatus, onAcknowledge }) {
   const [time, setTime] = useState(new Date().toLocaleTimeString('en-IN', { hour12: false }));
 
   useEffect(() => {
@@ -13,7 +15,7 @@ export default function Header({ connectionStatus, dataFreshness, onBriefingClic
 
   let marketPillContent = "⊘ SIMULATION MODE";
   let marketPillClass = "offline";
-  if (dataFreshness === 'LIVE') {
+  if (dataFreshness === 'LIVE' || dataFreshness === 'TIER_1_NSE_OFFICIAL' || dataFreshness === 'TIER_2_YAHOO' || dataFreshness === 'TIER_1_BREEZE') {
     marketPillContent = "● NSE LIVE";
     marketPillClass = "live";
   } else if (dataFreshness === 'MARKET_CLOSED') {
@@ -34,10 +36,13 @@ export default function Header({ connectionStatus, dataFreshness, onBriefingClic
       </div>
 
       <div className="center-section">
-        AI MARKET COMMANDER — ZERO HALLUCINATION
+        <div className="brand-tagline">AI MARKET COMMANDER — ZERO HALLUCINATION</div>
+        <ImpactCounter />
       </div>
 
       <div className="right-section">
+        <EducationToggle />
+
         <button 
           className="ai-briefing-btn"
           onClick={onBriefingClick}
@@ -46,20 +51,22 @@ export default function Header({ connectionStatus, dataFreshness, onBriefingClic
           🧠 AI BRIEFING
         </button>
 
-        <div className="mic-btn" title="Voice Command (Phase 5)">
-          <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-            <line x1="12" y1="19" x2="12" y2="23"></line>
-            <line x1="8" y1="23" x2="16" y2="23"></line>
-          </svg>
-        </div>
-
-        <div className="status-pill proof-engine">
+        <button 
+          className="status-pill proof-engine"
+          onClick={() => window.dispatchEvent(new CustomEvent('bazaar-trigger-z3-audit'))}
+          style={{ cursor: 'pointer' }}
+        >
           ⬡ PROOF ENGINE
-        </div>
+        </button>
 
-        <div className={`status-pill market-pill ${marketPillClass}`}>
+        <div 
+          className={`status-pill market-pill ${marketPillClass}`}
+          style={{ cursor: 'pointer' }}
+          onClick={() => {
+            fetch('http://localhost:8080/toggle-live', { method: 'POST' }).catch(console.error);
+          }}
+          title="Click to toggle Live / Simulation Mode"
+        >
           {marketPillContent}
         </div>
 

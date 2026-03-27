@@ -41,25 +41,140 @@ const StarField = () => {
   );
 };
 
-// B) HOLOGRAPHIC MARKET GRID FLOOR
-const MarketGrid = () => {
-  const gridRef = useRef();
+// B) CYBER GRID SHADER
+const gridVertexShader = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+}
+`;
+
+const gridFragmentShader = `
+uniform float uTime;
+uniform vec3 uColor;
+uniform float uEmergency;
+varying vec2 vUv;
+
+void main() {
+  vec2 uv = vUv * 40.0;
+  vec2 grid = abs(fract(uv - 0.5) - 0.5) / fwidth(uv);
+  float line = min(grid.x, grid.y);
+  float gridLine = 1.0 - min(line, 1.0);
   
-  useFrame(() => {
-    if (gridRef.current) {
-      // Simulate moving forward by translating Z and snapping back (grid cell size = 200/50 = 4)
-      gridRef.current.position.z += 0.05;
-      if (gridRef.current.position.z > 4) {
-        gridRef.current.position.z -= 4;
-      }
+  float glow = 0.03 / (line + 0.01);
+  
+  float pulse = sin(uTime * 2.0 + vUv.y * 10.0) * 0.5 + 0.5;
+  vec3 color = uColor + (uEmergency * vec3(1.0, 0.0, 0.0) * pulse);
+  
+  float alpha = (gridLine + glow * 0.5) * (0.15 + uEmergency * 0.2);
+  // Fade with distance
+  alpha *= (1.0 - length(vUv - 0.5) * 2.0);
+  
+  gl_FragColor = vec4(color, alpha);
+}
+`;
+
+const MarketGrid = ({ systemStatus }) => {
+  const meshRef = useRef();
+  const matRef = useRef();
+  const isEmergency = systemStatus === 'SIGNAL_DETECTED';
+  
+  useFrame((state) => {
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value = state.clock.getElapsedTime();
+      matRef.current.uniforms.uEmergency.value = THREE.MathUtils.lerp(
+        matRef.current.uniforms.uEmergency.value,
+        isEmergency ? 1.0 : 0.0,
+        0.05
+      );
+    }
+    if (meshRef.current) {
+      meshRef.current.position.z += 0.02 * (isEmergency ? 4 : 1);
+      if (meshRef.current.position.z > 5) meshRef.current.position.z -= 5;
     }
   });
 
   return (
-    <mesh ref={gridRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -10, 0]}>
-      <planeGeometry args={[200, 200, 50, 50]} />
-      <meshBasicMaterial wireframe color="#0066FF" transparent opacity={0.12} />
+    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -10, 0]}>
+      <planeGeometry args={[200, 200]} />
+      <shaderMaterial 
+        ref={matRef}
+        vertexShader={gridVertexShader}
+        fragmentShader={gridFragmentShader}
+        uniforms={{
+          uTime: { value: 0 },
+          uColor: { value: new THREE.Color('#0066FF') },
+          uEmergency: { value: 0 }
+        }}
+        transparent
+        depthWrite={false}
+      />
     </mesh>
+  );
+};
+
+// B2) DATA RAIN SHADER
+const rainVertexShader = `
+varying vec2 vUv;
+attribute float aSpeed;
+attribute float aOffset;
+uniform float uTime;
+void main() {
+  vUv = uv;
+  vec3 pos = position;
+  float t = mod(uTime * aSpeed + aOffset, 1.0);
+  pos.y = 20.0 - t * 40.0;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+}
+`;
+
+const rainFragmentShader = `
+varying vec2 vUv;
+uniform vec3 uColor;
+void main() {
+  float alpha = smoothstep(0.1, 0.5, vUv.y) * (1.0 - vUv.y);
+  gl_FragColor = vec4(uColor, alpha * 0.4);
+}
+`;
+
+const DataRain = () => {
+  const count = 100;
+  const meshRef = useRef();
+  const matRef = useRef();
+  
+  const [positions, speeds, offsets] = useMemo(() => {
+    const p = new Float32Array(count * 3);
+    const s = new Float32Array(count);
+    const o = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+        p[i*3] = (Math.random() - 0.5) * 60;
+        p[i*3+1] = 0;
+        p[i*3+2] = (Math.random() - 0.5) * 40;
+        s[i] = 0.2 + Math.random() * 0.5;
+        o[i] = Math.random();
+    }
+    return [p, s, o];
+  }, [count]);
+
+  useFrame((state) => {
+    if (matRef.current) matRef.current.uniforms.uTime.value = state.clock.getElapsedTime();
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[null, null, count]}>
+      <cylinderGeometry args={[0.02, 0.02, 2, 4]} />
+      <shaderMaterial 
+        ref={matRef}
+        vertexShader={rainVertexShader}
+        fragmentShader={rainFragmentShader}
+        uniforms={{
+          uTime: { value: 0 },
+          uColor: { value: new THREE.Color('#00FFFF') }
+        }}
+        transparent
+      />
+    </instancedMesh>
   );
 };
 
@@ -315,7 +430,8 @@ export default function SceneBackground({ sectors, systemStatus }) {
         <ambientLight intensity={0.5} />
         
         <StarField />
-        <MarketGrid />
+        <MarketGrid systemStatus={systemStatus} />
+        <DataRain />
         <FloatingParticles />
         <SectorPillars sectors={sectors} />
         <CoreRings systemStatus={systemStatus} />

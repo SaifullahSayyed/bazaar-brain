@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useMarketStore } from '../context/MarketStore';
 import '../styles/AIBriefingPanel.css';
 
 function useSequentialTypewriter(text, speed = 14) {
@@ -29,7 +30,15 @@ function useSequentialTypewriter(text, speed = 14) {
   return { displayed, done };
 }
 
-const BriefingSection = ({ title, text, isActive, isHindi }) => {
+const SECTION_TOOLTIPS = {
+  'MARKET STATUS': 'Overall market health index derived from Nifty50, volume patterns, and sector correlation signals.',
+  'WATCH': 'Sectors or stocks exhibiting anomalous tension or bearish divergence — monitor for potential short entry or exit.',
+  'OPPORTUNITY': 'Sectors showing oversold Z3 signals or bullish institutional accumulation — potential long setups.',
+  'DIRECTIVE': 'AI-generated action recommendation based on current market proof state and risk mandate.',
+  'HINDI BRIEFING': 'उपरोक्त विश्लेषण का हिन्दी सारांश — खुदरा निवेशकों के लिए।',
+};
+
+const BriefingSection = ({ title, text, isActive, isHindi, educationMode }) => {
   // Only type if active. If not active yet, show nothing.
   const { displayed, done } = useSequentialTypewriter(isActive ? text : '', 14);
 
@@ -41,7 +50,12 @@ const BriefingSection = ({ title, text, isActive, isHindi }) => {
 
   return (
     <div className={`brf-section ${isHindi ? 'brf-flex-hindi' : ''}`}>
-      <div className={`brf-sect-title ${titleColorClass}`}>{title}</div>
+      <div className={`brf-sect-title ${titleColorClass}`}>
+        {title}
+        {educationMode && SECTION_TOOLTIPS[title] && (
+          <span className="edu-info-tag" title={SECTION_TOOLTIPS[title]}>?</span>
+        )}
+      </div>
       <div className={`brf-sect-text ${isHindi ? 'text-warn' : 'text-primary'}`}>
         {displayed}
       </div>
@@ -49,7 +63,19 @@ const BriefingSection = ({ title, text, isActive, isHindi }) => {
   );
 };
 
+import ThinkingTrace from './ThinkingTrace';
+
+const BRIEFING_TRACE = [
+  "> INITIALIZING: Gemini 1.5 Flash Context...",
+  "> SNAPSHOT: Aggregating 8 sector vectors...",
+  "> CONTEXT: NIFTY 50 @ Live NSE Feed...",
+  "> HEURISTIC: Applying risk correlation matrix...",
+  "> SYNTHESIS: Formatting multi-modal briefing...",
+  "> READY: Disseminating Intelligence."
+];
+
 export default function AIBriefingPanel({ briefing, isLoading, onClose }) {
+  const educationMode = useMarketStore(state => state.educationMode);
   const [activeSegmentIndex, setActiveSegmentIndex] = useState(0);
 
   // Auto-dismiss after 45s
@@ -64,20 +90,46 @@ export default function AIBriefingPanel({ briefing, isLoading, onClose }) {
   let sections = [];
   if (briefing && !isLoading) {
     const raw = briefing.text || '';
-    const extract = (key, nextKey) => {
-      const idx = raw.indexOf(key + ':');
-      if (idx === -1) return '';
-      const start = idx + key.length + 1;
-      const end = nextKey ? raw.indexOf(nextKey + ':') : raw.length;
-      return raw.substring(start, end !== -1 ? end : raw.length).trim();
+    const lines = raw.split('\n').map(l => l.replace(/\*/g, '').trim()).filter(l => l.length > 0);
+    
+    // Robust Extraction: Try to find by label, but fallback to line index if Gemini ignores the prompt formatting
+    const extract = (key, lineIndex) => {
+      // 1. Try to find the exact label in the raw text
+      const keyRegex = new RegExp(`(?:\\*\\*)?${key}(?:\\*\\*)?\\s*(?:[:\\-])?\\s*`, 'i');
+      const matchKey = raw.match(keyRegex);
+      
+      if (matchKey) {
+        const start = matchKey.index + matchKey[0].length;
+        // Find next ALL CAPS label or end of string
+        const nextLabelRegex = /\n\s*(?:[A-Z\s]+)(?:[:\-])/i;
+        const remainder = raw.substring(start);
+        const matchNext = remainder.match(nextLabelRegex);
+        
+        const extracted = matchNext 
+          ? remainder.substring(0, matchNext.index).replace(/\*/g, '').trim()
+          : remainder.replace(/\*/g, '').trim();
+          
+        if (extracted.length > 0) return extracted;
+      }
+      
+      // 2. Fallback: If no label found, just take the Nth line of the response!
+      // Gemini often just returns 5 lines without labels.
+      if (lineIndex < lines.length) {
+        let line = lines[lineIndex];
+        // Strip out any prefix it might have added anyway (like "1. ", "- ")
+        line = line.replace(/^(?:MARKET STATUS|WATCH|OPPORTUNITY|DIRECTIVE|HINDI BRIEFING)?[\s:.-]*/i, '');
+        return line.trim();
+      }
+      
+      return 'Data unavailable'; // Failsafe
     };
 
     sections = [
-      { title: 'MARKET STATUS', text: extract('MARKET STATUS', 'WATCH') },
-      { title: 'WATCH', text: extract('WATCH', 'OPPORTUNITY') },
-      { title: 'OPPORTUNITY', text: extract('OPPORTUNITY', 'DIRECTIVE') },
-      { title: 'DIRECTIVE', text: extract('DIRECTIVE', 'HINDI BRIEFING') },
-      { title: 'HINDI BRIEFING', text: extract('HINDI BRIEFING', null), isHindi: true }
+      { title: 'MARKET STATUS', text: extract('MARKET STATUS', 0) },
+      { title: 'WATCH', text: extract('WATCH', 1) },
+      { title: 'OPPORTUNITY', text: extract('OPPORTUNITY', 2) },
+      { title: 'DIRECTIVE', text: extract('DIRECTIVE', 3) },
+      { title: 'HINDI BRIEFING', text: extract('HINDI BRIEFING', 4), isHindi: true }
     ];
   }
 
@@ -103,7 +155,7 @@ export default function AIBriefingPanel({ briefing, isLoading, onClose }) {
     });
 
     return () => timeouts.forEach(clearTimeout);
-  }, [isLoading, briefing]);
+  }, [isLoading, briefing, sections.length]);
 
   return (
     <motion.div 
@@ -114,17 +166,16 @@ export default function AIBriefingPanel({ briefing, isLoading, onClose }) {
       transition={{ duration: 0.3 }}
     >
       {isLoading ? (
-        <div className="brf-loading-state">
-          <svg className="brf-spin-ring" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" strokeOpacity="0.2" />
-            <path d="M12 2a10 10 0 0 1 10 10" stroke="var(--color-ai)" strokeLinecap="round" />
-          </svg>
-          <div className="brf-loading-text">
-            🧠 AI Commander analyzing live NSE data<span className="anim-dots"></span>
-          </div>
+        <div className="brf-loading-state" style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ThinkingTrace isOpen={true} lines={BRIEFING_TRACE} className="tt-inline" />
         </div>
       ) : (
         <>
+          {educationMode && (
+            <div className="brf-edu-banner">
+              🎓 <strong>EDUCATION MODE:</strong> This briefing is generated by Gemini AI using live NSE sector data. Each section reflects a distinct market intelligence layer — hover the <strong>?</strong> tags for explanations.
+            </div>
+          )}
           <div className="brf-sections-row">
             {sections.map((sec, idx) => (
               <BriefingSection 
@@ -133,6 +184,7 @@ export default function AIBriefingPanel({ briefing, isLoading, onClose }) {
                 text={sec.text}
                 isHindi={sec.isHindi}
                 isActive={activeSegmentIndex >= idx}
+                educationMode={educationMode}
               />
             ))}
           </div>

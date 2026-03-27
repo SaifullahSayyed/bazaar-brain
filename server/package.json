@@ -17,6 +17,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "socket.io": "^4.8.3",
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "z3-solver": "^4.16.0"
   }
 }

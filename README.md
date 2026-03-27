@@ -1,16 +1,69 @@
-# React + Vite
+# 🧠 BAZAAR BRAIN — v0.5.0-complete
+### ET GenAI Hackathon 2026 Edition
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **"Mathematical Certainty in a World of AI Guesses."**
 
-Currently, two official plugins are available:
+Bazaar Brain is a next-generation AI Market Monitor that combines the power of **Google Gemini Pro** with the logical precision of the **Z3 SMT Solver**. It doesn't just predict the market; it *proves* risk.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 NEW IN PHASE 5 (VALLEY OF THE SUN)
+- 🎙️ **Hindi Voice Interface**: Command your dashboard in natural Hindi using Web Speech API + Gemini Intent Scaling.
+- 📡 **Opportunity Radar**: AI-driven scanning of 8 NSE sectors every 5 minutes to surface hidden alphas.
+- 📐 **Formal Proofs**: Every AI directive is backed by a Z3 formal verification record.
+- 📈 **3D Nerve Center**: Immersive R3F visualization of NSE market tension and humidity.
+ customizable safety rules (e.g., flash crash detection, volume-price divergence).
+- **Gemini AI Commander**: Multi-lingual (English/Hindi) AI briefing system that provides actionable directives during market anomalies.
+- **Immersive 3D Visualization**: Built with React Three Fiber for a premium "War Room" aesthetic.
 
-## React Compiler
+## 🛠️ Technology Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React 19, Vite, Three.js, Framer Motion, GSAP.
+- **Backend**: Node.js, Express, Socket.io, Yahoo Finance API.
+- **AI**: Google Gemini Pro (Logic & Briefing).
+- **Validation**: Z3 SMT Solver (Server-side & Client-side logic).
 
-## Expanding the ESLint configuration
+## 📦 Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+
+- Node.js (v18+)
+- Gemini API Key
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/example/bazaar-brain.git
+   cd bazaar-brain
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   cd server && npm install && cd ..
+   ```
+
+3. Configure environment variables:
+   Copy `.env.example` to `.env` in both root and server directories and add your `VITE_GEMINI_API_KEY`.
+
+### Running the Application
+
+1. Start the backend:
+   ```bash
+   cd server
+   node index.js
+   ```
+
+2. Start the frontend:
+   ```bash
+   npm run dev
+   ```
+
+3. Trigger Demo Sequence:
+   Press `Ctrl+Shift+P` on the dashboard to start the automated AI briefing demo.
+
+## 🔐 Security & Safety
+
+The system implements the **Z3 Risk Proof Engine**, which ensures that no market directive is issued without a formal mathematical proof of the underlying anomaly.
+
+---
+*Developed by Antigravity AI — Phase 4 AI Commander Integration Complete.*
