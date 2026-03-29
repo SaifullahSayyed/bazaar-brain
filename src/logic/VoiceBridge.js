@@ -69,7 +69,8 @@ export const extractIntent = async (transcript) => {
     `NO OTHER TEXT.`;
 
   try {
-    const response = await callGemini(prompt, 15000);
+    const result = await callGemini({ prompt, timeoutMs: 15000 });
+    const response = result.text;
     console.log('🤖 GEMINI VOICE REPLY:', response);
     
     // Extra robust cleaning: strip markdown code blocks and find the line with pipes

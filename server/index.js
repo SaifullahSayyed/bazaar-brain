@@ -293,10 +293,10 @@ async function fetchNSEOfficial(symbol) {
     const record = apiRes.data?.data?.[0];
     if (!record) return null;
 
-    const lastPrice  = parseFloat(record.lastPrice?.replace(/,/g, '')) || 0;
-    const prevClose  = parseFloat(record.previousClose?.replace(/,/g, '')) || 1;
-    const dayHigh    = parseFloat(record.dayHigh?.replace(/,/g, ''))    || lastPrice;
-    const dayLow     = parseFloat(record.dayLow?.replace(/,/g, ''))     || lastPrice;
+    const lastPrice  = parseFloat(String(record.lastPrice || '0').replace(/,/g, '')) || 0;
+    const prevClose  = parseFloat(String(record.previousClose || '1').replace(/,/g, '')) || 1;
+    const dayHigh    = parseFloat(String(record.dayHigh || lastPrice).replace(/,/g, '')) || lastPrice;
+    const dayLow     = parseFloat(String(record.dayLow || lastPrice).replace(/,/g, '')) || lastPrice;
 
     logger.info(`[Waterfall] Tier 1 NSE_OFFICIAL success for ${symbol} (${indexName}): ₹${lastPrice}`);
     return {
@@ -440,7 +440,7 @@ async function pollMarketData() {
 
     // NIFTY50 & SENSEX via Waterfall
     const niftyMeta = await fetchWaterfallIndexData('^NSEI');
-    if (niftyMeta && niftyMeta._source === 'TIER_2_YAHOO') {
+    if (niftyMeta && (niftyMeta._source === 'TIER_1_NSE_OFFICIAL' || niftyMeta._source === 'TIER_2_YAHOO')) {
       const p = niftyMeta.regularMarketPrice || 0;
       const c = niftyMeta.previousClose || 1;
       globalState.marketMetaTarget.nifty50 = { price: p, changePct: ((p - c) / c) * 100 };
@@ -449,7 +449,7 @@ async function pollMarketData() {
     }
 
     const sensexMeta = await fetchWaterfallIndexData('^BSESN');
-    if (sensexMeta && sensexMeta._source === 'TIER_2_YAHOO') {
+    if (sensexMeta && (sensexMeta._source === 'TIER_1_NSE_OFFICIAL' || sensexMeta._source === 'TIER_2_YAHOO')) {
       const p = sensexMeta.regularMarketPrice || 0;
       const c = sensexMeta.previousClose || 1;
       globalState.marketMetaTarget.sensex = { price: p, changePct: ((p - c) / c) * 100 };

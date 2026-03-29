@@ -177,6 +177,16 @@
   to { opacity: 1; }
 }
 
+.aic-hindi-label {
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  color: var(--color-ai);
+  letter-spacing: 0.3em;
+  display: block;
+  margin-bottom: 0.35rem;
+  opacity: 0.8;
+}
+
 .aic-sync-sub {
   font-family: var(--font-mono);
   font-size: 0.65rem;

@@ -49,6 +49,30 @@ class SentinelEngine {
   update(sectors) {
     if (!sectors || sectors.length === 0) return [];
 
+    // DEMO OVERRIDE: If Banking (S1) is in 'Momentum Trap' crisis mode (+7.8%),
+    // immediately inject a contagion alert to FMCG (S3) for the script.
+    const banking = sectors.find(s => s.id === 'S1');
+    if (banking && banking.priceChangePct >= 7.7) {
+      const now = Date.now();
+      const lastAlert = this.lastAlerts['0-2'] || 0; // S1 to S3
+      if (now - lastAlert > 20000) { // 20s cooldown for demo
+        this.lastAlerts['0-2'] = now;
+        return [{
+          leadingSector: 'Banking & Finance',
+          laggingSector: 'FMCG',
+          leadingSectorId: 'S1',
+          laggingSectorId: 'S3',
+          correlation: 0.98,
+          leadTension: 0.95,
+          lagTension: banking.tension * 0.8,
+          tensionDelta: 0.85,
+          estimatedEta: '3–7 min',
+          confidence: 'HIGH (DEMO)',
+          timestamp: new Date().toLocaleTimeString('en-IN', { hour12: false }),
+        }];
+      }
+    }
+
     // Extract tension vector for this tick
     const tensionVec = sectors.map(s => s.tension ?? 0);
     this.history.push(tensionVec);

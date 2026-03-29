@@ -180,11 +180,43 @@ export default function Dashboard() {
     window.addEventListener('bazaar-trigger-briefing', briefingHandler);
     window.addEventListener('bazaar-trigger-z3-audit', z3Handler);
     window.addEventListener('bazaar-show-stock-detail', stockDetailHandler);
+
+    // Crisis Injection for Demo (Ctrl+Shift+D)
+    const handleCrisisInjection = (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+        console.log('🚀 DEMO MODE: Injecting Banking Crisis (Momentum Trap)');
+        const liveSectors = useMarketStore.getState().sectors;
+        if (!liveSectors || liveSectors.length === 0) return;
+
+        const crisisSectors = [...liveSectors];
+        const bankingIdx = crisisSectors.findIndex(s => s.id === 'S1');
+        if (bankingIdx !== -1) {
+          crisisSectors[bankingIdx] = {
+            ...crisisSectors[bankingIdx],
+            name: 'NIFTY BANK',
+            priceChangePct: 7.8,
+            volumeRatio: 0.42, // Price up + Volume down = SAT (Violation)
+            tension: 0.95,
+            signal: 'BULLISH',
+            currentPrice: crisisSectors[bankingIdx].currentPrice * 1.078
+          };
+          useMarketStore.setState({ 
+            sectors: crisisSectors,
+            systemStatus: 'MONITORING' // Reset to allow re-triggering audit
+          });
+          // Pulse the UI to show something happened
+          window.dispatchEvent(new CustomEvent('bazaar-trigger-z3-audit'));
+        }
+      }
+    };
+    window.addEventListener('keydown', handleCrisisInjection);
+
     return () => {
       window.removeEventListener('bazaar-acknowledge', handler);
       window.removeEventListener('bazaar-trigger-briefing', briefingHandler);
       window.removeEventListener('bazaar-trigger-z3-audit', z3Handler);
       window.removeEventListener('bazaar-show-stock-detail', stockDetailHandler);
+      window.removeEventListener('keydown', handleCrisisInjection);
     };
   }, [handleAcknowledge, handleAIBriefing, auditSectors, pushSignalEvent]);
 

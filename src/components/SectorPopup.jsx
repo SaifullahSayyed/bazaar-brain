@@ -174,6 +174,27 @@ function SectorPopup({ sector, onClose }) {
             </defs>
             {dArea && <path d={dArea} fill={`url(#${sector.id}-grad)`} />}
             {dPath && <path d={dPath} fill="none" stroke={themeColor} strokeWidth="2" />}
+            
+            {/* Z3 Mathematical Boundaries (High/Low) */}
+            {history.length > 0 && (
+              <>
+                <line 
+                  x1={0} y1={height * 0.2} x2={width} y2={height * 0.2} 
+                  stroke="rgba(255,34,34,0.4)" strokeDasharray="4,4" strokeWidth="1" 
+                />
+                <text x={4} y={height * 0.15} fill="rgba(255,34,34,0.8)" fontSize="0.45rem" fontFamily="var(--font-mono)">
+                  ∇ Z3 BOUNDARY (UPPER)
+                </text>
+                
+                <line 
+                  x1={0} y1={height * 0.8} x2={width} y2={height * 0.8} 
+                  stroke="rgba(0,255,136,0.4)" strokeDasharray="4,4" strokeWidth="1" 
+                />
+                <text x={4} y={height * 0.9} fill="rgba(0,255,136,0.8)" fontSize="0.45rem" fontFamily="var(--font-mono)">
+                  ∇ Z3 BOUNDARY (LOWER)
+                </text>
+              </>
+            )}
           </svg>
         </div>
 

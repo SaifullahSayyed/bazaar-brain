@@ -363,7 +363,7 @@ export default function LandingPage() {
             {signalsProven.toLocaleString('en-IN')}+ signals proven mathematically
           </div>
 
-          <h1 style={{ fontSize: 'clamp(2rem, 4.5vw, 3.4rem)', fontWeight: 900, lineHeight: 1.12, marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>
+          <h1 style={{ color: '#fff', fontSize: 'clamp(2rem, 4.5vw, 3.4rem)', fontWeight: 900, lineHeight: 1.12, marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>
             India's retail investors deserve{' '}
             <span style={{ color: '#ef4444' }}>proof,</span>
             <br />not{' '}

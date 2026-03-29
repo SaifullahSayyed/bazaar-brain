@@ -146,10 +146,18 @@ export default function AICommanderPanel({ auditResult, directive, onAcknowledge
               <div className="aic-eng-text">{engDisplayed}</div>
               
               {engDone && hindiText && (
-                <>
+                <motion.div 
+                  className="aic-hindi-section"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
                   <div className="aic-hindi-divider" />
-                  <div className="aic-hindi-text">{hindiDisplayed}</div>
-                </>
+                  <span className="aic-hindi-label">REGIONAL LANGUAGE — HINDI</span>
+                  <div className="aic-hindi-text" style={{ fontSize: '1.4rem', color: 'var(--color-bull)', textShadow: '0 0 10px rgba(0,255,136,0.3)' }}>
+                    {hindiDisplayed}
+                  </div>
+                </motion.div>
               )}
             </div>
 

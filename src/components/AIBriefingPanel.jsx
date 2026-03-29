@@ -56,7 +56,8 @@ const BriefingSection = ({ title, text, isActive, isHindi, educationMode }) => {
           <span className="edu-info-tag" title={SECTION_TOOLTIPS[title]}>?</span>
         )}
       </div>
-      <div className={`brf-sect-text ${isHindi ? 'text-warn' : 'text-primary'}`}>
+      <div className={`brf-sect-text ${isHindi ? 'text-warn' : 'text-primary'}`} style={isHindi ? { fontSize: '1.25rem', marginTop: '0.4rem', color: 'var(--color-bull)' } : {}}>
+        {isHindi && <div style={{ fontSize: '0.5rem', color: 'var(--color-text-muted)', letterSpacing: '0.15em', marginBottom: '0.2rem' }}>REGIONAL LANGUAGE — HINDI</div>}
         {displayed}
       </div>
     </div>
